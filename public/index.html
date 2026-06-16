@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sürdürülebilir Bayrampaşa: Bütünleşik Çevre Operasyonu</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+    <div id="map"></div>
+    <div id="border-flash"></div>
+
+    <div id="hud-container" class="hide">
+        <div class="hud-logo-panel">
+            <img src="assets/bayrampasa-belediyesi-logo1.png" alt="Belediye Logo">
+        </div>
+        <div class="hud-panel">Kurtarılan Alan <span id="hud-cleared-count">0 / 11</span></div>
+        <div class="hud-panel">Toplam Skor <span id="hud-score">0</span></div>
+        <div class="hud-panel">Araç Sağlığı <span id="hud-hp" style="color:var(--danger)">❤️❤️❤️</span></div>
+        <div class="hud-panel" style="position: relative;">
+            Aktif Konum <span id="hud-boundary" style="font-size:14px; color:var(--secondary); margin-top:4px;">Yükleniyor...</span>
+            <button class="logout-hud-btn" onclick="guvenliCikis()">🚪 Çıkış</button>
+        </div>
+        <button id="theme-toggle-btn" onclick="toggleOyunTemasi()">☀️ Açık Tema</button>
+    </div>
+
+    <div id="bottom-panel" class="hide">
+        <div class="panel-section">
+            <h4>📋 Aktif Mahalle Görevi</h4>
+            <div id="quest-box">
+                <span id="quest-desc">🚨 Atıkları toplayın ve Geri Dönüşüm Merkezine (♻️) ulaştırın!</span> 
+                <span id="quest-progress" style="float: right; font-weight: bold;">Kasadaki: 0/10 | Teslim Edilen: 0/10</span>
+            </div>
+        </div>
+        <div class="panel-section" style="border-left: 1px solid var(--border-color); padding-left: 25px;">
+            <h4>🚚 Garaj Veritabanı Bilgi Sistemi</h4>
+            <div style="font-weight: bold; font-size: 13px;">
+                Sürücü: <span id="hud-truck-name" style="color:var(--secondary);">Yükleniyor...</span>
+            </div>
+            <div id="level-status" style="font-size:10px; color:var(--accent); margin-top:5px; font-weight:700;">💨Egzoz:10 | 🛢️Varil:20 | 🏭Fabrika:30 Puan | Atıkları Depoya Teslim Et!</div>
+        </div>
+    </div>
+
+    <div id="auth-container" class="screen">
+        <div class="auth-layout-wrapper">
+            <div class="modern-auth-card">
+                <div class="auth-header">
+                    <img src="assets/bayrampasa-belediyesi-logo1.png" alt="Belediye Logo" style="height: 55px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;">
+                    <h2>Bayrampaşa Belediyesi</h2>
+                    <p>Atık Yönetimi Çok Oyunculu Çevre Operasyonu</p>
+                </div>
+                <div class="auth-body">
+                    <div class="input-modern-group">
+                        <label class="input-modern-label">👤 Sürücü Adı:</label>
+                        <input type="text" id="auth-ad" placeholder="Adınızı yazın...">
+                    </div>
+                    <div class="input-modern-group">
+                        <label class="input-modern-label">📋 Sürücü Soyadı:</label>
+                        <input type="text" id="auth-soyad" placeholder="Soyadınızı yazın...">
+                    </div>
+                    <div class="input-modern-group">
+                        <label class="input-modern-label">🔑 Benzersiz Kullanıcı Adı:</label>
+                        <input type="text" id="auth-user" placeholder="Kullanıcı adınızı belirleyin...">
+                    </div>
+                    <div class="input-modern-group">
+                        <label class="input-modern-label">🔒 Güvenli Şifre:</label>
+                        <input type="password" id="auth-pass" placeholder="Şifrenizi yazın...">
+                    </div>
+                    <div class="auth-action-row">
+                        <button id="btn-login" class="btn-modern btn-primary-neon" onclick="handleGiris()">Giriş Yap</button>
+                        <button id="btn-register" class="btn-modern btn-secondary-neon" onclick="handleKayit()">Kayıt Ol</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="leaderboard-card">
+                <div class="leaderboard-header">
+                    <h3>🏆 GLOBAL SKOR BORDU</h3>
+                    <p>En Yüksek Puan Alan Sürücüler</p>
+                </div>
+                <div id="leaderboard-list" class="leaderboard-list">
+                    <div class="leader-row loading-text">Skorlar yükleniyor...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="rules-screen" class="screen hide">
+        <h1 style="color: var(--accent); margin-bottom: 5px; font-size: 36px;">📜 GÖREV & OYUN KURALLARI</h1>
+        <p style="margin-top: 0; margin-bottom: 30px;">Bayrampaşa'yı Atıklardan Kurtarmaya Hazır mısın?</p>
+        <div class="rules-welcome-container">
+            <div class="rule-welcome-item">
+                <span class="welcome-icon">🎮</span>
+                <div>
+                    <h4>Aracı Hareket Ettir</h4>
+                    <p>Aracınızı harita üzerinde <b>Yön Tuşları</b> veya <b>W, A, S, D</b> tuşları ile mahalle sınırları içerisinde sürebilirsiniz.</p>
+                </div>
+            </div>
+            <div class="rule-welcome-item">
+                <span class="welcome-icon">🍾</span>
+                <div>
+                    <h4>Atıkları Topla</h4>
+                    <p>Sokaklara saçılmış Cam, Pet, Kağıt ve Kartonların üzerinde <b>kısa bir süre durarak</b> onları toplayın. Maksimum kasa kapasitesi <b>10 adettir</b>!</p>
+                </div>
+            </div>
+            <div class="rule-welcome-item">
+                <span class="welcome-icon">♻️</span>
+                <div>
+                    <h4>İstasyona Teslim Et</h4>
+                    <p>Kasadaki atıkları boşaltmak için yeşil <b>Geri Dönüşüm Merkezine (♻️)</b> yanaşın. Toplamda 10 adet teslim ettiğinizde mahalle kirlilikten kurtulur!</p>
+                </div>
+            </div>
+            <div class="rule-welcome-item">
+                <span class="welcome-icon">⚡</span>
+                <div>
+                    <h4>Otomatik Arıtma Sistemi</h4>
+                    <p>Kasanın üzerindeki gri platform, kirlilik kaynaklarına otomatik lazer atar. Onları vurarak puan toplayın: 💨 Egzoz: 10 | 🛢️ Varil: 20 | 🏭 Fabrika: 30 Puan</p>
+                </div>
+            </div>
+            <div class="rule-welcome-item">
+                <span class="welcome-icon">⚠️</span>
+                <div>
+                    <h4>Sağlığına Dikkat Et</h4>
+                    <p>Atıkların fırlattığı kirlilik dalgalarına çarparsan canın gider. 3 canın biterse veya mahalle sınırlarının dışına çıkarsan elenirsin!</p>
+                </div>
+            </div>
+        </div>
+        <button class="start-btn welcome-btn" onclick="gecGarajEkranina()">Anladım, Garaja İlerle! 🚀</button>
+    </div>
+
+    <div id="start-screen" class="screen hide">
+        <h1 style="color: var(--primary); margin-bottom: 5px; font-size: 32px;">Bayrampaşa Çevre Garajı</h1>
+        <p style="margin-top: 0; margin-bottom: 25px;">Karton Toplama Kapasite & İstasyon Teslimat Sistemi</p>
+        <div class="garage-container modern-auth-card" style="width: 100%; max-width: 900px;">
+            <div class="garage-column">
+                <h3 style="color: var(--primary); font-size: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">🛠️ GARAJ ÖZELLEŞTİR</h3>
+                <div class="input-modern-group">
+                    <label class="input-modern-label">Kamyon Kasa Rengi:</label>
+                    <div class="color-palette" id="truck-color-palette">
+                        <div class="color-dot" style="background: #2ed573;" data-value="#2ed573" onclick="selectTruckColor(this)"></div>
+                        <div class="color-dot" style="background: #1e90ff;" data-value="#1e90ff" onclick="selectTruckColor(this)"></div>
+                        <div class="color-dot" style="background: #ffa500;" data-value="#ffa500" onclick="selectTruckColor(this)"></div>
+                        <div class="color-dot" style="background: #d6a2e8;" data-value="#d6a2e8" onclick="selectTruckColor(this)"></div>
+                        <div class="color-dot active" style="background: #ff85a2;" data-value="#ff85a2" onclick="selectTruckColor(this)"></div>
+                    </div>
+                </div>
+                <div class="input-modern-group">
+                    <label class="input-modern-label">Arıtma Lazer Rengi:</label>
+                    <div class="color-palette" id="laser-color-palette">
+                        <div class="color-dot active" style="background: #1e90ff;" data-value="#1e90ff" onclick="selectLaserColor(this)"></div>
+                        <div class="color-dot" style="background: #2ed573;" data-value="#2ed573" onclick="selectLaserColor(this)"></div>
+                        <div class="color-dot" style="background: #ffa500;" data-value="#ffa500" onclick="selectLaserColor(this)"></div>
+                        <div class="color-dot" style="background: #ff85a2;" data-value="#ff85a2" onclick="selectLaserColor(this)"></div>
+                    </div>
+                </div>
+                <div class="input-modern-group">
+                    <label class="input-modern-label">Kamyon Kasa Boyutu:</label>
+                    <select class="modern-select" id="select-truck-size" onchange="updateGaragePreview()">
+                        <option value="kucuk">Küçük Kasa (Hafif Yük)</option>
+                        <option value="normal" selected>Normal Kasa (Dengeli Yük)</option>
+                        <option value="buyuk">Büyük Kasa (Ağır Sanayi)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="garage-column">
+                <h3 style="color: var(--secondary); font-size: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">📋 OPERASYON AYARLARI</h3>
+                <div class="input-modern-group">
+                    <label class="input-modern-label">Araca Oyun Adı Ver:</label>
+                    <input type="text" id="input-truck-name" placeholder="Örn: Atık Avcısı 3000" oninput="updateGaragePreview()" required>
+                </div>
+                <div class="input-modern-group">
+                    <label class="input-modern-label">📍 Operasyon Başlangıç Mahallesi:</label>
+                    <select class="modern-select" id="select-mahalle"></select>
+                </div>
+                <div class="input-modern-group">
+                    <label class="input-modern-label" style="color: var(--accent);">🕹️ Operasyon Görev Modu:</label>
+                    <select class="modern-select" id="select-game-mode">
+                        <option value="offline" selected>Çevrimdışı Kariyer (Tek Başına Savaş)</option>
+                        <option value="online">Çok Oyunculu Online (Matchmaking Rakipli)</option>
+                    </select>
+                </div>
+                <label class="input-modern-label" style="margin-top: 5px;">Canlı Tasarım Ön İzleme:</label>
+                <div id="preview-area">
+                    <div class="truck-wrapper" id="preview-truck-wrapper">
+                        <div class="truck-label" id="preview-label">...</div>
+                        <div class="real-truck truck-size-normal" id="preview-truck-body">
+                            <div class="truck-bed" id="preview-bed">
+                                <div class="laser-platform"><div class="laser-nozzle"></div></div>
+                            </div>
+                            <div class="truck-cabin"><div class="truck-window"></div></div>
+                            <div class="truck-wheel w-front"></div>
+                            <div class="truck-wheel w-back"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="start-btn" onclick="lobiyeKatilVeEşleş()">Garajdan Çık ve Göreve Başla 🚀</button>
+    </div>
+
+    <div id="matchmaking-container" class="screen hide">
+        <div class="garage-container modern-auth-card" style="max-width: 450px; text-align: center; border-color: var(--accent);">
+            <div class="radar-pulse">📡</div>
+            <h2 style="color: var(--accent); margin-top: 15px;">Eşleşme Aranıyor...</h2>
+            <p id="matchmaking-status-text" style="color: var(--text-color); font-size: 14px;">Operasyon merkeziniz şu an boştaki diğer çevre araçlarıyla bağlantı kuruyor.</p>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <div id="win-screen" class="screen hide">
+        <h1 id="win-title" style="font-size: 36px; color: var(--primary);">🏆 GÖREV BAŞARIYLA TAMAMLANDI!</h1>
+        <p style="font-size: 18px;" id="win-msg"></p>
+        <div style="display:flex; gap:20px; margin-top:25px;">
+            <button class="start-btn" style="margin:0;" onclick="sonrakiSiralıMahalle()">Sonraki Mahalle 🗺️</button>
+            <button class="start-btn welcome-btn" style="margin:0;" onclick="guvenliCikis()">🚪 Sürücü Çıkışı</button>
+        </div>
+    </div>
+
+    <div id="game-over-screen" class="screen hide">
+        <h1 id="fail-title" style="color: #ff4757; font-size: 42px;">💥 GÖREV BAŞARISIZ!</h1>
+        <p id="fail-msg" style="font-size: 18px;">Aracınız kirlilik darbelerinden dolayı elendi.</p>
+        <div style="display:flex; gap:20px; margin-top:25px;">
+            <button class="start-btn" style="background:#fff; color:#8b0000; font-weight:bold; border:none; margin:0;" onclick="tekrarOynaDöngüsü()">Tekrar Oyna 🔄</button>
+            <button class="start-btn welcome-btn" style="margin:0;" onclick="guvenliCikis()">🚪 Sürücü Çıkışı</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
