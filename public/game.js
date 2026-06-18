@@ -915,20 +915,31 @@ function isPointInPolygon(point, vs) {
     }
     return inside;
 }
-/* MOBİL JOYSTICK KONTROLLERİ */
+/* --- KUSURSUZ MOBİL JOYSTICK KONTROLLERİ (POINTER EVENTS) --- */
 function setupMobileControls() {
     const bindTouch = (id, keyProp) => {
         const btn = document.getElementById(id);
         if (!btn) return;
+
+        // Tarayıcının varsayılan dokunmatik huylarını (zoom, kaydırma vb.) tamamen kapat
+        btn.style.touchAction = 'none';
+
+        const startMove = (e) => { 
+            e.preventDefault(); 
+            keys[keyProp] = true; 
+        };
         
-        // Ekrana dokunulduğunda tuşa basıldı say
-        btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyProp] = true; });
-        // Dokunma bittiğinde tuşu bırakıldı say
-        btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyProp] = false; });
-        
-        // PC üzerinden de mouse ile test edebilmen için
-        btn.addEventListener('mousedown', (e) => { e.preventDefault(); keys[keyProp] = true; });
-        btn.addEventListener('mouseup', (e) => { e.preventDefault(); keys[keyProp] = false; });
+        const stopMove = (e) => { 
+            e.preventDefault(); 
+            keys[keyProp] = false; 
+        };
+
+        // Pointer Events: Parmak, fare veya kalem... Hepsini en iyi algılayan sistem!
+        btn.addEventListener('pointerdown', startMove); // Basıldığında
+        btn.addEventListener('pointerup', stopMove);    // Bırakıldığında
+        btn.addEventListener('pointercancel', stopMove); // Sistem kesintiye uğrarsa
+        btn.addEventListener('pointerout', stopMove);   // PARMAK TUŞTAN DIŞARI KAYARSA (İşte takılmayı çözen bu!)
+        btn.addEventListener('pointerleave', stopMove); // Parmak tuşu terk ederse
     };
 
     bindTouch('btn-up', 'w');
