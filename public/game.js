@@ -1,4 +1,3 @@
-// game.js - SIFIR HATA GARANTİLİ 11 MAHALLE KESİNTİSİZ MULTIPLAYER MOTOR
 const startScreen = document.getElementById('start-screen');
 const gameOverScreen = document.getElementById('game-over-screen');
 const winScreen = document.getElementById('win-screen');
@@ -157,9 +156,26 @@ function loadGlobalLeaderboard() {
         .catch(err => console.log("Skor tablosu çekilemedi."));
 }
 
+/* YENİ EKRAN GEÇİŞ FONKSİYONLARI */
+function showChoiceStep() {
+    document.getElementById('auth-choice-step').classList.remove('hide');
+    document.getElementById('login-step').classList.add('hide');
+    document.getElementById('register-step').classList.add('hide');
+}
+
+function showLoginStep() {
+    document.getElementById('auth-choice-step').classList.add('hide');
+    document.getElementById('login-step').classList.remove('hide');
+}
+
+function showRegisterStep() {
+    document.getElementById('auth-choice-step').classList.add('hide');
+    document.getElementById('register-step').classList.remove('hide');
+}
+
 async function handleGiris() {
-    const kAdi = document.getElementById('auth-user').value.trim().toLowerCase();
-    const sifre = document.getElementById('auth-pass').value.trim();
+    const kAdi = document.getElementById('login-user').value.trim().toLowerCase();
+    const sifre = document.getElementById('login-pass').value.trim();
 
     if (!kAdi || !sifre) {
         alert("Lütfen kullanıcı adı ve şifreni girin.");
@@ -177,11 +193,14 @@ async function handleGiris() {
         if (data.success) {
             currentKullaniciAdi = data.kullanici_adi;
             currentAdSoyad = `${data.ad} ${data.soyad}`;
+            
+            // Araç adını, giriş yapılan kullanıcı adına sabitledik
+            truckName = currentKullaniciAdi;
 
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('rules-screen').classList.remove('hide');
 
-            kontrolEtEskiKullaniciyi();
+            updateGaragePreview();
         } else {
             alert("Hata: " + data.error);
         }
@@ -209,30 +228,15 @@ async function handleKayit() {
         });
         const data = await res.json();
         alert(data.message || data.error);
+        
+        if (data.success) {
+            document.getElementById('login-user').value = kAdi;
+            showLoginStep();
+        }
         loadGlobalLeaderboard();
     } catch (err) {
         console.error(err);
     }
-}
-
-function kontrolEtEskiKullaniciyi() {
-    const aracInput = document.getElementById('input-truck-name');
-    if (!currentAdSoyad) return;
-    const parts = currentAdSoyad.split(" ");
-
-    fetch('/api/kullanici-kontrol', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ad: parts[0], soyad: parts[1] })
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data.kullanici) {
-                aracInput.value = data.kullanici.arac;
-                updateGaragePreview();
-            }
-        })
-        .catch(err => console.log("SQL Eski araç sorgusu pasif"));
 }
 
 function gecGarajEkranina() {
@@ -255,7 +259,8 @@ function selectLaserColor(element) {
 }
 
 function updateGaragePreview() {
-    const name = document.getElementById('input-truck-name').value || "...";
+    // Araç adı artık truckName değişkeninden alınıyor
+    const name = truckName || "...";
     const size = document.getElementById('select-truck-size').value;
     const label = document.getElementById('preview-label');
     if (label) label.innerText = name;
@@ -290,15 +295,9 @@ function updateGaragePreview() {
 }
 
 function lobiyeKatilVeEşleş() {
-    truckName = document.getElementById('input-truck-name').value.trim();
     selectedMahalle = document.getElementById('select-mahalle').value;
     truckSize = document.getElementById('select-truck-size').value;
     currentMode = document.getElementById('select-game-mode').value;
-
-    if (!truckName) {
-        alert("Lütfen aracınıza bir isim verin.");
-        return;
-    }
 
     remainingMahalles = Object.keys(bayrampasaMahalleSinirlari).filter(m => m !== selectedMahalle);
 
@@ -617,7 +616,7 @@ function gameLoop() {
                             boxes.splice(i, 1);
                         }
                         targetCollectingBoxId = null;
-                    }, 0); // <-- BEKLEME SÜRESİ BURADA 0'A İNDİRİLDİ
+                    }, 0); 
                 }
             }
             break;
@@ -857,6 +856,14 @@ function guvenliCikis() {
     if (map) { map.remove(); map = null; }
     if (socket) { socket.disconnect(); socket = null; }
 
+    // Çıkış yaparken input formlarını temizleyelim ve seçeneği ilk hale getirelim
+    document.getElementById('login-user').value = '';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('auth-ad').value = '';
+    document.getElementById('auth-soyad').value = '';
+    document.getElementById('auth-user').value = '';
+    document.getElementById('auth-pass').value = '';
+    
     currentKullaniciAdi = "";
     currentAdSoyad = "";
     score = 0;
@@ -871,6 +878,7 @@ function guvenliCikis() {
     startScreen.classList.add('hide');
     document.getElementById('rules-screen').classList.add('hide');
 
+    showChoiceStep(); // Auth ekranını ana menüye dönder
     document.getElementById('auth-container').style.display = 'flex';
     loadGlobalLeaderboard();
 }
@@ -907,3 +915,27 @@ function isPointInPolygon(point, vs) {
     }
     return inside;
 }
+/* MOBİL JOYSTICK KONTROLLERİ */
+function setupMobileControls() {
+    const bindTouch = (id, keyProp) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        
+        // Ekrana dokunulduğunda tuşa basıldı say
+        btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyProp] = true; });
+        // Dokunma bittiğinde tuşu bırakıldı say
+        btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyProp] = false; });
+        
+        // PC üzerinden de mouse ile test edebilmen için
+        btn.addEventListener('mousedown', (e) => { e.preventDefault(); keys[keyProp] = true; });
+        btn.addEventListener('mouseup', (e) => { e.preventDefault(); keys[keyProp] = false; });
+    };
+
+    bindTouch('btn-up', 'w');
+    bindTouch('btn-down', 's');
+    bindTouch('btn-left', 'a');
+    bindTouch('btn-right', 'd');
+}
+
+// Oyuna hazırlık aşamasında joystick'i aktifleştir
+setupMobileControls();

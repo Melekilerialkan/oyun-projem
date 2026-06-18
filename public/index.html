@@ -25,7 +25,15 @@
         </div>
         <button id="theme-toggle-btn" onclick="toggleOyunTemasi()">☀️ Açık Tema</button>
     </div>
-
+<!-- MOBİL JOYSTICK (Sadece oyun başladığında ve mobilde görünür) -->
+    <div id="mobile-controls" class="hide">
+        <button id="btn-up" class="dpad-btn">⬆️</button>
+        <div class="dpad-row">
+            <button id="btn-left" class="dpad-btn">⬅️</button>
+            <button id="btn-down" class="dpad-btn">⬇️</button>
+            <button id="btn-right" class="dpad-btn">➡️</button>
+        </div>
+    </div>
     <div id="bottom-panel" class="hide">
         <div class="panel-section">
             <h4>📋 Aktif Mahalle Görevi</h4>
@@ -52,25 +60,43 @@
                     <p>Atık Yönetimi Çok Oyunculu Çevre Operasyonu</p>
                 </div>
                 <div class="auth-body">
-                    <div class="input-modern-group">
-                        <label class="input-modern-label">👤 Sürücü Adı:</label>
-                        <input type="text" id="auth-ad" placeholder="Adınızı yazın...">
+                    <div id="auth-choice-step" class="auth-action-row" style="flex-direction: column; margin-top:0;">
+                        <button class="btn-modern btn-primary-neon" onclick="showLoginStep()">Giriş Yap</button>
+                        <button class="btn-modern btn-secondary-neon" onclick="showRegisterStep()">Kayıt Ol</button>
                     </div>
-                    <div class="input-modern-group">
-                        <label class="input-modern-label">📋 Sürücü Soyadı:</label>
-                        <input type="text" id="auth-soyad" placeholder="Soyadınızı yazın...">
+
+                    <div id="login-step" class="hide">
+                        <div class="input-modern-group">
+                            <label class="input-modern-label">🔑 Kullanıcı Adı:</label>
+                            <input type="text" id="login-user" placeholder="Kullanıcı adınızı girin...">
+                        </div>
+                        <div class="input-modern-group">
+                            <label class="input-modern-label">🔒 Şifre:</label>
+                            <input type="password" id="login-pass" placeholder="Şifrenizi yazın...">
+                        </div>
+                        <button class="btn-modern btn-primary-neon" style="width: 100%; margin-top: 10px;" onclick="handleGiris()">Giriş Yap</button>
+                        <p style="text-align: center; margin-top: 15px; font-size: 13px; cursor: pointer; color: var(--secondary);" onclick="showChoiceStep()">⬅️ Geri Dön</p>
                     </div>
-                    <div class="input-modern-group">
-                        <label class="input-modern-label">🔑 Benzersiz Kullanıcı Adı:</label>
-                        <input type="text" id="auth-user" placeholder="Kullanıcı adınızı belirleyin...">
-                    </div>
-                    <div class="input-modern-group">
-                        <label class="input-modern-label">🔒 Güvenli Şifre:</label>
-                        <input type="password" id="auth-pass" placeholder="Şifrenizi yazın...">
-                    </div>
-                    <div class="auth-action-row">
-                        <button id="btn-login" class="btn-modern btn-primary-neon" onclick="handleGiris()">Giriş Yap</button>
-                        <button id="btn-register" class="btn-modern btn-secondary-neon" onclick="handleKayit()">Kayıt Ol</button>
+
+                    <div id="register-step" class="hide">
+                        <div class="input-modern-group">
+                            <label class="input-modern-label">👤 Ad:</label>
+                            <input type="text" id="auth-ad" placeholder="Adınızı yazın...">
+                        </div>
+                        <div class="input-modern-group">
+                            <label class="input-modern-label">📋 Soyad:</label>
+                            <input type="text" id="auth-soyad" placeholder="Soyadınızı yazın...">
+                        </div>
+                        <div class="input-modern-group">
+                            <label class="input-modern-label">🔑 Özel Ad (Araç Adınız Olacak):</label>
+                            <input type="text" id="auth-user" placeholder="Kullanıcı adınızı belirleyin...">
+                        </div>
+                        <div class="input-modern-group">
+                            <label class="input-modern-label">🔒 Şifre:</label>
+                            <input type="password" id="auth-pass" placeholder="Şifrenizi yazın...">
+                        </div>
+                        <button class="btn-modern btn-secondary-neon" style="width: 100%; margin-top: 10px;" onclick="handleKayit()">Kayıt İşlemini Tamamla</button>
+                        <p style="text-align: center; margin-top: 15px; font-size: 13px; cursor: pointer; color: var(--secondary);" onclick="showChoiceStep()">⬅️ Geri Dön</p>
                     </div>
                 </div>
             </div>
@@ -88,8 +114,8 @@
     </div>
 
     <div id="rules-screen" class="screen hide">
-        <h1 style="color: var(--accent); margin-bottom: 5px; font-size: 36px;">📜 GÖREV & OYUN KURALLARI</h1>
-        <p style="margin-top: 0; margin-bottom: 30px;">Bayrampaşa'yı Atıklardan Kurtarmaya Hazır mısın?</p>
+        <h1 style="color: var(--accent); margin-bottom: 5px; font-size: 36px; text-align: center;">📜 GÖREV & OYUN KURALLARI</h1>
+        <p style="margin-top: 0; margin-bottom: 30px; text-align: center;">Bayrampaşa'yı Atıklardan Kurtarmaya Hazır mısın?</p>
         <div class="rules-welcome-container">
             <div class="rule-welcome-item">
                 <span class="welcome-icon">🎮</span>
@@ -131,8 +157,8 @@
     </div>
 
     <div id="start-screen" class="screen hide">
-        <h1 style="color: var(--primary); margin-bottom: 5px; font-size: 32px;">Bayrampaşa Çevre Garajı</h1>
-        <p style="margin-top: 0; margin-bottom: 25px;">Karton Toplama Kapasite & İstasyon Teslimat Sistemi</p>
+        <h1 style="color: var(--primary); margin-bottom: 5px; font-size: 32px; text-align: center;">Bayrampaşa Çevre Garajı</h1>
+        <p style="margin-top: 0; margin-bottom: 25px; text-align: center;">Karton Toplama Kapasite & İstasyon Teslimat Sistemi</p>
         <div class="garage-container modern-auth-card" style="width: 100%; max-width: 900px;">
             <div class="garage-column">
                 <h3 style="color: var(--primary); font-size: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">🛠️ GARAJ ÖZELLEŞTİR</h3>
@@ -166,10 +192,6 @@
             </div>
             <div class="garage-column">
                 <h3 style="color: var(--secondary); font-size: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">📋 OPERASYON AYARLARI</h3>
-                <div class="input-modern-group">
-                    <label class="input-modern-label">Araca Oyun Adı Ver:</label>
-                    <input type="text" id="input-truck-name" placeholder="Örn: Atık Avcısı 3000" oninput="updateGaragePreview()" required>
-                </div>
                 <div class="input-modern-group">
                     <label class="input-modern-label">📍 Operasyon Başlangıç Mahallesi:</label>
                     <select class="modern-select" id="select-mahalle"></select>
@@ -210,18 +232,18 @@
     </div>
 
     <div id="win-screen" class="screen hide">
-        <h1 id="win-title" style="font-size: 36px; color: var(--primary);">🏆 GÖREV BAŞARIYLA TAMAMLANDI!</h1>
-        <p style="font-size: 18px;" id="win-msg"></p>
-        <div style="display:flex; gap:20px; margin-top:25px;">
+        <h1 id="win-title" style="font-size: 36px; color: var(--primary); text-align: center;">🏆 GÖREV BAŞARIYLA TAMAMLANDI!</h1>
+        <p style="font-size: 18px; text-align: center;" id="win-msg"></p>
+        <div style="display:flex; flex-wrap: wrap; justify-content: center; gap:20px; margin-top:25px;">
             <button class="start-btn" style="margin:0;" onclick="sonrakiSiralıMahalle()">Sonraki Mahalle 🗺️</button>
             <button class="start-btn welcome-btn" style="margin:0;" onclick="guvenliCikis()">🚪 Sürücü Çıkışı</button>
         </div>
     </div>
 
     <div id="game-over-screen" class="screen hide">
-        <h1 id="fail-title" style="color: #ff4757; font-size: 42px;">💥 GÖREV BAŞARISIZ!</h1>
-        <p id="fail-msg" style="font-size: 18px;">Aracınız kirlilik darbelerinden dolayı elendi.</p>
-        <div style="display:flex; gap:20px; margin-top:25px;">
+        <h1 id="fail-title" style="color: #ff4757; font-size: 42px; text-align: center;">💥 GÖREV BAŞARISIZ!</h1>
+        <p id="fail-msg" style="font-size: 18px; text-align: center;">Aracınız kirlilik darbelerinden dolayı elendi.</p>
+        <div style="display:flex; flex-wrap: wrap; justify-content: center; gap:20px; margin-top:25px;">
             <button class="start-btn" style="background:#fff; color:#8b0000; font-weight:bold; border:none; margin:0;" onclick="tekrarOynaDöngüsü()">Tekrar Oyna 🔄</button>
             <button class="start-btn welcome-btn" style="margin:0;" onclick="guvenliCikis()">🚪 Sürücü Çıkışı</button>
         </div>

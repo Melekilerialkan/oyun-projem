@@ -124,8 +124,6 @@ body, html {
 .real-truck { display: flex; align-items: flex-end; position: relative; height: 40px; order: 1; }
 .truck-cabin { width: 22px; height: 26px; background: #f1f2f6; border: 2px solid #2f3542; border-radius: 4px 10px 4px 2px; position: relative; z-index: 3; margin-bottom: 8px; }
 .truck-window { position: absolute; right: 2px; top: 3px; width: 12px; height: 8px; background: #747d8c; border-radius: 1px 3px 1px 1px; }
-
-/* ⚡ BEYAZ KUTU SORUNU ÇÖZÜLDÜ - class="" eklendiği için Leaflet stili ezemez */
 .laser-nozzle { position: absolute; top: -2px; left: 50%; transform: translateX(-50%); width: 4px; height: 3px; background: #2f3542; border-radius: 1px; }
 .truck-bed { height: 28px; border: 2px solid #2f3542; border-radius: 4px; position: relative; z-index: 2; margin-bottom: 8px; }
 .truck-bed-logo-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 2px; box-sizing: border-box; }
@@ -147,7 +145,7 @@ body, html {
 .truck-size-buyuk .w-front { right: 4px; }
 .truck-size-buyuk .w-back { left: 12px; }
 
-.screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--body-bg); color: var(--text-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999 !important; padding: 20px; box-sizing: border-box; }
+.screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--body-bg); color: var(--text-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999 !important; padding: 20px; box-sizing: border-box; overflow-y: auto; overflow-x: hidden;}
 .hide { display: none !important; }
 .garage-container { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; width: 100%; max-width: 900px; background: var(--card-bg); padding: 30px; border-radius: 20px; border: 2px solid var(--secondary); box-shadow: 0 10px 30px var(--shadow-color); }
 .garage-column { display: flex; flex-direction: column; gap: 15px; }
@@ -166,3 +164,121 @@ button.start-btn:hover { transform: scale(1.05); }
 
 .radar-pulse { font-size: 60px; animation: pulse 1.5s infinite; text-shadow: 0 0 15px var(--accent); text-align: center; }
 .loading-spinner { width: 40px; height: 40px; border: 4px solid rgba(255,165,0,0.2); border-top-color: var(--accent); border-radius: 50%; margin: 20px auto 0; animation: spin 1s linear infinite; }
+
+/* --- MOBİL JOYSTICK GÖRÜNÜMÜ --- */
+#mobile-controls {
+    position: absolute;
+    bottom: 110px; /* PC için normal durum, mobilde aşağıda ezilecek */
+    right: 15px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+.dpad-row { display: flex; gap: 5px; }
+.dpad-btn {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: rgba(30, 144, 255, 0.85); /* Tema rengine uyumlu yarı saydam mavi */
+    border: 2px solid var(--secondary);
+    color: white; font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    user-select: none; touch-action: manipulation;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+.dpad-btn:active { background: var(--secondary); transform: scale(0.9); }
+
+/* --- PC'DE JOYSTICK'İ GİZLE --- */
+@media screen and (min-width: 769px) {
+    #mobile-controls { display: none !important; }
+}
+
+/* --- YENİLENMİŞ MOBİL UYUMLULUK (Tam Ekran Oyun Deneyimi) --- */
+@media screen and (max-width: 768px) {
+    /* Auth ve Liderlik Tablosu */
+    .auth-layout-wrapper { flex-direction: column; align-items: center; gap: 20px; }
+    .modern-auth-card, .leaderboard-card { width: 100%; max-width: 350px; padding: 20px; box-sizing: border-box; }
+
+    /* ÜST HUD EKRANI (TEK SIRA VE YATAY KAYDIRILABİLİR) */
+    #hud-container { 
+        flex-direction: row; 
+        flex-wrap: nowrap; /* Asla alt satıra geçme, tek sıra kal */
+        overflow-x: auto; /* Sığmazsa yana doğru kaydırma ver */
+        top: 5px; left: 5px; right: 5px; gap: 8px;
+        padding-bottom: 5px;
+    }
+    /* Mobilde şık durması için kaydırma çubuğunu (scrollbar) gizle */
+    #hud-container::-webkit-scrollbar { display: none; }
+    #hud-container { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .hud-panel { 
+        flex: 0 0 auto; /* İçeriğin boyutu kadar yer kapla, daralma */
+        font-size: 11px; padding: 6px 12px; min-height: auto; 
+        white-space: nowrap; /* Yazıların alt satıra inmesini engelle */
+        display: flex; align-items: center; gap: 5px; /* İkon ve yazıyı yan yana al */
+    }
+    .hud-panel span { font-size: 13px; margin-top: 0; display: inline-block; }
+    
+    /* Gereksiz detayları gizleyerek yer aç */
+    .hud-logo-panel { display: none !important; } /* Logoyu mobilde gizle */
+    #theme-toggle-btn { flex: 0 0 auto; height: 32px; font-size: 11px; white-space: nowrap; }
+    
+    /* Çıkış butonunu "Aktif Konum" panelinin içine hizala */
+    .logout-hud-btn { position: relative; top: 0; right: 0; margin-left: 10px; display: inline-block; }
+
+    /* ALT PANEL (SADECE İNCE BİR GÖREV ÇUBUĞU OLARAK KALSIN) */
+    #bottom-panel { 
+        display: block; /* Grid yapısını iptal et */
+        padding: 8px; bottom: 5px; left: 5px; right: 5px; gap: 0;
+    }
+    .panel-section:nth-child(2) { display: none; } /* Garaj Bilgisi panelini oyundayken mobilde gizle */
+    .panel-section h4 { display: none; } /* Başlığı gizle */
+    #quest-box { padding: 6px; text-align: center; border-left: none; }
+    #quest-desc { display: none; } /* Uzun görev metnini gizle */
+    #quest-progress { float: none !important; font-size: 12px; display: block; width: 100%; margin: 0; color: var(--primary); } 
+
+    /* JOYSTICK (DAHA KOMPAKT VE SAĞ ALT KÖŞEYE SIFIR) */
+    #mobile-controls {
+        bottom: 45px; /* İncelen alt panelin hemen üstünde */
+        right: 10px;
+        transform: scale(0.85); /* Ekranı çok kapatmaması için hafif küçültüldü */
+        transform-origin: bottom right;
+    }
+    #mobile-controls:not(.hide) { display: flex !important; }
+
+    /* Harita içindeki araç boyutu */
+    .truck-wrapper { transform: scale(0.70); transform-origin: bottom center; }
+
+    h1 { font-size: 24px !important; text-align: center; }
+    p { font-size: 14px !important; text-align: center; }
+    button.start-btn { padding: 12px 30px; font-size: 15px; width: 100%; }
+
+    /* --- GARAJ (ARAÇ SEÇİM) EKRANI MOBİL UYUMLULUK --- */
+    .garage-container {
+        grid-template-columns: 1fr !important; /* İki sütunu iptal et, tek sütun yap */
+        padding: 20px 15px !important;
+        gap: 20px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .garage-column {
+        gap: 12px;
+    }
+
+    .color-palette {
+        flex-wrap: wrap; /* Renk butonları sığmazsa alt satıra insin */
+        justify-content: center;
+    }
+
+    #preview-area {
+        height: 120px; /* Araç önizleme kutusunu mobilde biraz daralt */
+    }
+
+    /* Başlıkların mobilde çok büyük durmaması için */
+    .garage-column h3 {
+        font-size: 16px !important;
+        text-align: center;
+    }
+}

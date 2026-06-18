@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const sqlite3 = require('sqlite3').verbose();
+const { Pool } = require('pg');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -20,22 +20,25 @@ const io = new Server(server, {
 
 const JWT_SECRET = "megoz_lina_fura_gizli_anahtar_2026";
 
-const dbPath = path.join(__dirname, 'veritabani.db');
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) console.error("SQL Bağlantı Hatası:", err.message);
-    else console.log("SQLite Güvenli Çok Oyunculu Veritabanı Aktif! 🚀");
+// PostgreSQL Bağlantısı
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_aiYC7jZvTc1y@ep-solitary-resonance-ainnhwf8.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require',
+    ssl: { rejectUnauthorized: false }
 });
-
-db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS kullanicilar (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ad TEXT NOT NULL,
-        soyad TEXT NOT NULL,
-        kullanici_adi TEXT UNIQUE NOT NULL,
-        sifre TEXT NOT NULL,
-        arac TEXT DEFAULT 'Çevre Savaşçısı',
-        skor INTEGER DEFAULT 0
-    )`);
+pool.connect((err) => {
+    if (err) console.error("PostgreSQL Bağlantı Hatası:", err.stack);
+    else {
+        console.log("PostgreSQL Güvenli Çok Oyunculu Veritabanı Aktif! 🚀");
+        pool.query(`CREATE TABLE IF NOT EXISTS kullanicilar (
+            id SERIAL PRIMARY KEY,
+            ad VARCHAR(100) NOT NULL,
+            soyad VARCHAR(100) NOT NULL,
+            kullanici_adi VARCHAR(50) UNIQUE NOT NULL,
+            sifre VARCHAR(255) NOT NULL,
+            arac VARCHAR(50) DEFAULT 'Çevre Savaşçısı',
+            skor INTEGER DEFAULT 0
+        )`);
+    }
 });
 
 function basHarfleriBuyut(str) {
@@ -50,59 +53,62 @@ app.post('/api/auth/kayit', async (req, res) => {
 
     try {
         const hashSifre = await bcrypt.hash(sifre, 10);
-        db.run(`INSERT INTO kullanicilar (ad, soyad, kullanici_adi, sifre) VALUES (?, ?, ?, ?)`,
-        [temizAd, temizSoyad, temizKullaniciAdi, hashSifre], function(err) {
-            if (err) return res.status(400).json({ error: "Bu kullanıcı adı zaten kapılmış!" });
-            res.json({ success: true, message: "Kayıt başarıyla tamamlandı!" });
-        });
-    } catch (e) { res.status(500).json({ error: e.message }); }
+        await pool.query(
+            `INSERT INTO kullanicilar (ad, soyad, kullanici_adi, sifre, arac) VALUES ($1, $2, $3, $4, $5)`,
+            [temizAd, temizSoyad, temizKullaniciAdi, hashSifre, temizKullaniciAdi]
+        );
+        res.json({ success: true, message: "Kayıt başarıyla tamamlandı!" });
+    } catch (e) { 
+        res.status(400).json({ error: "Bu kullanıcı adı zaten kapılmış veya bir hata oluştu!" }); 
+    }
 });
 
-app.post('/api/auth/giris', (req, res) => {
+app.post('/api/auth/giris', async (req, res) => {
     const { kullanici_adi, sifre } = req.body;
     const temizKullaniciAdi = kullanici_adi.trim().toLowerCase();
 
-    db.get(`SELECT * FROM kullanicilar WHERE kullanici_adi = ?`, [temizKullaniciAdi], async (err, user) => {
-        if (err || !user) return res.status(400).json({ error: "Kullanıcı adı veya şifre hatalı!" });
+    try {
+        const { rows } = await pool.query(`SELECT * FROM kullanicilar WHERE kullanici_adi = $1`, [temizKullaniciAdi]);
+        if (rows.length === 0) return res.status(400).json({ error: "Kullanıcı adı veya şifre hatalı!" });
+        
+        const user = rows[0];
         const sifreDogru = await bcrypt.compare(sifre, user.sifre);
         if (!sifreDogru) return res.status(400).json({ error: "Şifre uyuşmuyor!" });
         
         const token = jwt.sign({ id: user.id, kullanici_adi: user.kullanici_adi }, JWT_SECRET, { expiresIn: '24h' });
-        res.json({ success: true, token, ad: user.ad, soyad: user.soyad, kullanici_adi: user.kullanici_adi });
-    });
+        res.json({ success: true, token, ad: user.ad, soyad: user.soyad, kullanici_adi: user.kullanici_adi, arac: user.arac });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
-app.get('/api/leaderboard', (req, res) => {
-    db.all(`SELECT ad, soyad, skor FROM kullanicilar ORDER BY skor DESC LIMIT 10`, [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
+app.get('/api/leaderboard', async (req, res) => {
+    try {
+        const { rows } = await pool.query(`SELECT ad, soyad, skor FROM kullanicilar ORDER BY skor DESC LIMIT 10`);
         res.json({ leaderboard: rows });
-    });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
-app.post('/api/skor-kaydet', (req, res) => {
+app.post('/api/skor-kaydet', async (req, res) => {
     const { kullanici_adi, skor } = req.body;
-    db.run(`UPDATE kullanicilar SET skor = MAX(skor, ?) WHERE kullanici_adi = ?`, [skor, kullanici_adi], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
+    try {
+        await pool.query(`UPDATE kullanicilar SET skor = GREATEST(skor, $1) WHERE kullanici_adi = $2`, [skor, kullanici_adi]);
         res.json({ success: true });
-    });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
-app.post('/api/kullanici-kontrol', (req, res) => {
-    const { ad, soyad } = req.body;
-    db.get(`SELECT * FROM kullanicilar WHERE LOWER(ad) = ? AND LOWER(soyad) = ?`, 
-    [ad.toLowerCase(), soyad.toLowerCase()], (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ kullanici: row || null });
-    });
-});
-
-app.post('/api/kullanici-kaydet', (req, res) => {
+app.post('/api/kullanici-kaydet', async (req, res) => {
     const { ad, soyad, arac } = req.body;
-    db.run(`UPDATE kullanicilar SET arac = ? WHERE LOWER(ad) = ? AND LOWER(soyad) = ?`,
-    [arac, ad.toLowerCase(), soyad.toLowerCase()], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
+    try {
+        await pool.query(`UPDATE kullanicilar SET arac = $1 WHERE LOWER(ad) = $2 AND LOWER(soyad) = $3`, [arac, ad.toLowerCase(), soyad.toLowerCase()]);
         res.json({ success: true });
-    });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
 const bekleyenOyuncular = {}; 
@@ -165,7 +171,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// BURASI DEĞİŞTİ: Artık Render'ın verdiği portu dinleyecek
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Sunucu port ${PORT} üzerinde aktif!`);
