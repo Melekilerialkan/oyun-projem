@@ -282,3 +282,49 @@ button.start-btn:hover { transform: scale(1.05); }
         text-align: center;
     }
 }
+/* --- MOBİL JOYSTICK TASARIMI --- */
+#mobile-controls {
+    display: none; /* Bilgisayarda gizli tut */
+    position: fixed;
+    bottom: 30px; /* Ekranın en altından boşluk */
+    right: 30px; /* Ekranın sağından boşluk */
+    z-index: 9999; /* Tuşları her şeyin en üstüne koy */
+    flex-direction: column;
+    align-items: center;
+}
+
+.dpad-row {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Tuşlar arası boşluk */
+    margin-top: 10px;
+}
+
+.dpad-btn {
+    width: 65px;
+    height: 65px;
+    background-color: rgba(255, 255, 255, 0.6); /* Şeffaf beyaz */
+    border: 3px solid #333;
+    border-radius: 50%; /* Yuvarlak tuşlar */
+    font-size: 28px; /* Ok işaretlerinin boyutu */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    user-select: none; /* Metin seçmeyi engelle */
+    -webkit-user-select: none;
+    touch-action: manipulation; /* Çift tıklamada zoomu engelle */
+}
+
+/* Tuşa basıldığındaki efekt */
+.dpad-btn:active {
+    background-color: rgba(200, 200, 200, 0.9);
+    transform: scale(0.90);
+}
+
+/* SADECE TELEFON EKRANLARINDA GÖSTER (@media query) */
+@media (max-width: 768px) {
+    #mobile-controls {
+        display: flex;
+    }
+}
