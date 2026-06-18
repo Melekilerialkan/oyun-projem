@@ -4,7 +4,7 @@
     --secondary: #1e90ff;
     --accent: #ffa500;
     --danger: #ff4757;
-    --dark: #39d6d4;
+    --dark: #2f3542;
     --lila: #d6a2e8;
     --pink: #ff85a2;
 }
@@ -68,7 +68,6 @@ body, html {
     flex: 1; min-height: 44px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;
 }
 
-/* 🎨 HUD İçindeki Logo İçin Şeffaf Yapı */
 .hud-logo-panel {
     flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
     pointer-events: auto; background: transparent; border: none; padding: 0; margin-right: 5px;
@@ -79,7 +78,6 @@ body, html {
 .hud-panel span { display: block; font-size: 18px; color: var(--primary); margin-top: 2px; }
 .logout-hud-btn { position: absolute; right: 8px; top: 6px; background: var(--danger); color: white; border: none; padding: 2px 6px; font-size: 10px; font-weight: bold; border-radius: 4px; cursor: pointer; pointer-events: auto; }
 
-/* Haritada Açık Temada Varlıkların Net Seçilmesi İçin Gölge Filtresi */
 .leaflet-marker-icon { filter: drop-shadow(0px 3px 5px rgba(0, 0, 0, 0.45)); }
 
 #bottom-panel { position: absolute; bottom: 20px; left: 20px; right: 20px; background: var(--panel-bg); border-radius: 16px; border: 2px solid var(--primary); padding: 15px 25px; z-index: 999 !important; box-shadow: 0 4px 20px var(--shadow-color); display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; color: var(--text-color); }
@@ -90,7 +88,6 @@ body, html {
 .auth-header h2 { color: var(--text-color); font-size: 24px; margin: 0; font-weight: 800; text-align: center; }
 .auth-header p { color: var(--text-color); opacity: 0.7; font-size: 13px; margin: 5px 0 20px 0; font-weight: 500; text-align: center; }
 
-/* 🎨 GARAJ VE GİRİŞ İÇİN MODERN INPUTLAR */
 .input-modern-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 6px; }
 .input-modern-label { font-size: 13px; font-weight: 700; color: var(--text-color); display: block; text-align: left; opacity: 0.9; }
 .input-modern-group input, .modern-select { 
@@ -118,7 +115,6 @@ body, html {
 .leader-row .player-score { color: var(--primary); font-weight: 700; }
 .loading-text, .no-score { justify-content: center; color: #64748b; font-style: italic; }
 
-/* 🚚 ARABA MODELİ VE TEKERLEK GÖRSEL YAPISI TAM GÜVENLİ KORUNDU */
 .truck-wrapper { display: flex; flex-direction: column; align-items: center; position: relative; }
 .truck-label { background: rgba(0, 0, 0, 0.8); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; white-space: nowrap; margin-top: 4px; border: 1px solid var(--primary); order: 2; }
 .real-truck { display: flex; align-items: flex-end; position: relative; height: 40px; order: 1; }
@@ -165,214 +161,6 @@ button.start-btn:hover { transform: scale(1.05); }
 .radar-pulse { font-size: 60px; animation: pulse 1.5s infinite; text-shadow: 0 0 15px var(--accent); text-align: center; }
 .loading-spinner { width: 40px; height: 40px; border: 4px solid rgba(255,165,0,0.2); border-top-color: var(--accent); border-radius: 50%; margin: 20px auto 0; animation: spin 1s linear infinite; }
 
-/* --- MOBİL JOYSTICK GÖRÜNÜMÜ --- */
-#mobile-controls {
-    position: absolute;
-    bottom: 110px; /* PC için normal durum, mobilde aşağıda ezilecek */
-    right: 15px;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-.dpad-row { display: flex; gap: 5px; }
-.dpad-btn {
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    background: rgba(30, 144, 255, 0.85); /* Tema rengine uyumlu yarı saydam mavi */
-    border: 2px solid var(--secondary);
-    color: white; font-size: 20px;
-    display: flex; align-items: center; justify-content: center;
-    user-select: none; touch-action: manipulation;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-.dpad-btn:active { background: var(--secondary); transform: scale(0.9); }
-
-/* --- PC'DE JOYSTICK'İ GİZLE --- */
-@media screen and (min-width: 769px) {
-    #mobile-controls { display: none !important; }
-}
-
-/* --- YENİLENMİŞ MOBİL UYUMLULUK (Tam Ekran Oyun Deneyimi) --- */
-@media screen and (max-width: 768px) {
-    /* Auth ve Liderlik Tablosu */
-    .auth-layout-wrapper { flex-direction: column; align-items: center; gap: 20px; }
-    .modern-auth-card, .leaderboard-card { width: 100%; max-width: 350px; padding: 20px; box-sizing: border-box; }
-
-    /* ÜST HUD EKRANI (TEK SIRA VE YATAY KAYDIRILABİLİR) */
-    #hud-container { 
-        flex-direction: row; 
-        flex-wrap: nowrap; /* Asla alt satıra geçme, tek sıra kal */
-        overflow-x: auto; /* Sığmazsa yana doğru kaydırma ver */
-        top: 5px; left: 5px; right: 5px; gap: 8px;
-        padding-bottom: 5px;
-    }
-    /* Mobilde şık durması için kaydırma çubuğunu (scrollbar) gizle */
-    #hud-container::-webkit-scrollbar { display: none; }
-    #hud-container { -ms-overflow-style: none; scrollbar-width: none; }
-
-    .hud-panel { 
-        flex: 0 0 auto; /* İçeriğin boyutu kadar yer kapla, daralma */
-        font-size: 11px; padding: 6px 12px; min-height: auto; 
-        white-space: nowrap; /* Yazıların alt satıra inmesini engelle */
-        display: flex; align-items: center; gap: 5px; /* İkon ve yazıyı yan yana al */
-    }
-    .hud-panel span { font-size: 13px; margin-top: 0; display: inline-block; }
-    
-    /* Gereksiz detayları gizleyerek yer aç */
-    .hud-logo-panel { display: none !important; } /* Logoyu mobilde gizle */
-    #theme-toggle-btn { flex: 0 0 auto; height: 32px; font-size: 11px; white-space: nowrap; }
-    
-    /* Çıkış butonunu "Aktif Konum" panelinin içine hizala */
-    .logout-hud-btn { position: relative; top: 0; right: 0; margin-left: 10px; display: inline-block; }
-
-    /* ALT PANEL (SADECE İNCE BİR GÖREV ÇUBUĞU OLARAK KALSIN) */
-    #bottom-panel { 
-        display: block; /* Grid yapısını iptal et */
-        padding: 8px; bottom: 5px; left: 5px; right: 5px; gap: 0;
-    }
-    .panel-section:nth-child(2) { display: none; } /* Garaj Bilgisi panelini oyundayken mobilde gizle */
-    .panel-section h4 { display: none; } /* Başlığı gizle */
-    #quest-box { padding: 6px; text-align: center; border-left: none; }
-    #quest-desc { display: none; } /* Uzun görev metnini gizle */
-    #quest-progress { float: none !important; font-size: 12px; display: block; width: 100%; margin: 0; color: var(--primary); } 
-
-    /* JOYSTICK (DAHA KOMPAKT VE SAĞ ALT KÖŞEYE SIFIR) */
-    #mobile-controls {
-        bottom: 45px; /* İncelen alt panelin hemen üstünde */
-        right: 10px;
-        transform: scale(0.85); /* Ekranı çok kapatmaması için hafif küçültüldü */
-        transform-origin: bottom right;
-    }
-    #mobile-controls:not(.hide) { display: flex !important; }
-
-    /* Harita içindeki araç boyutu */
-    .truck-wrapper { transform: scale(0.70); transform-origin: bottom center; }
-
-    h1 { font-size: 24px !important; text-align: center; }
-    p { font-size: 14px !important; text-align: center; }
-    button.start-btn { padding: 12px 30px; font-size: 15px; width: 100%; }
-
-    /* --- GARAJ (ARAÇ SEÇİM) EKRANI MOBİL UYUMLULUK --- */
-    .garage-container {
-        grid-template-columns: 1fr !important; /* İki sütunu iptal et, tek sütun yap */
-        padding: 20px 15px !important;
-        gap: 20px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    
-    .garage-column {
-        gap: 12px;
-    }
-
-    .color-palette {
-        flex-wrap: wrap; /* Renk butonları sığmazsa alt satıra insin */
-        justify-content: center;
-    }
-
-    #preview-area {
-        height: 120px; /* Araç önizleme kutusunu mobilde biraz daralt */
-    }
-
-    /* Başlıkların mobilde çok büyük durmaması için */
-    .garage-column h3 {
-        font-size: 16px !important;
-        text-align: center;
-    }
-}
-/* --- MOBİL JOYSTICK TASARIMI --- */
-#mobile-controls {
-    display: none; /* Bilgisayarda gizli tut */
-    position: fixed;
-    bottom: 30px; /* Ekranın en altından boşluk */
-    right: 30px; /* Ekranın sağından boşluk */
-    z-index: 9999; /* Tuşları her şeyin en üstüne koy */
-    flex-direction: column;
-    align-items: center;
-}
-
-.dpad-row {
-    display: flex;
-    justify-content: center;
-    gap: 15px; /* Tuşlar arası boşluk */
-    margin-top: 10px;
-}
-
-.dpad-btn {
-    width: 65px;
-    height: 65px;
-    background-color: rgba(255, 255, 255, 0.6); /* Şeffaf beyaz */
-    border: 3px solid #333;
-    border-radius: 50%; /* Yuvarlak tuşlar */
-    font-size: 28px; /* Ok işaretlerinin boyutu */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    user-select: none; /* Metin seçmeyi engelle */
-    -webkit-user-select: none;
-    touch-action: manipulation; /* Çift tıklamada zoomu engelle */
-}
-
-/* Tuşa basıldığındaki efekt */
-.dpad-btn:active {
-    background-color: rgba(200, 200, 200, 0.9);
-    transform: scale(0.90);
-}
-
-/* SADECE TELEFON EKRANLARINDA GÖSTER (@media query) */
-@media (max-width: 768px) {
-    #mobile-controls {
-        display: flex;
-    }
-}
-/* --- MOBİL JOYSTICK TASARIMI --- */
-#mobile-controls {
-    display: none;
-    position: fixed;
-    bottom: 130px; /* Yazıların üstüne binmemesi için yukarı alındı */
-    right: 30px; 
-    z-index: 9999;
-    flex-direction: column;
-    align-items: center;
-}
-
-.dpad-row {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 10px;
-}
-
-.dpad-btn {
-    width: 65px;
-    height: 65px;
-    background-color: rgba(255, 255, 255, 0.6);
-    border: 3px solid #333;
-    border-radius: 50%;
-    font-size: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: none; /* Ekranın kaymasını ve yakınlaşmasını engeller */
-}
-
-.dpad-btn:active {
-    background-color: rgba(200, 200, 200, 0.9);
-    transform: scale(0.90);
-}
-
-@media (max-width: 768px) {
-    #mobile-controls {
-        display: flex;
-    }
-}
-
 /* --- DEPO DOLU UYARISI TASARIMI --- */
 #depo-uyari {
     display: none;
@@ -397,4 +185,88 @@ button.start-btn:hover { transform: scale(1.05); }
     0% { opacity: 1; }
     50% { opacity: 0.3; }
     100% { opacity: 1; }
+}
+
+/* --- MOBİL JOYSTICK TASARIMI --- */
+#mobile-controls {
+    display: none;
+    position: fixed;
+    bottom: 130px; /* Yukarı alındı */
+    right: 30px; 
+    z-index: 9999;
+    flex-direction: column;
+    align-items: center;
+}
+.dpad-row { display: flex; gap: 5px; margin-top: 5px; }
+.dpad-btn {
+    width: 55px; height: 55px;
+    border-radius: 50%;
+    background: rgba(30, 144, 255, 0.85); 
+    border: 2px solid var(--secondary);
+    color: white; font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    user-select: none; touch-action: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+.dpad-btn:active { background: var(--secondary); transform: scale(0.9); }
+
+@media screen and (min-width: 769px) {
+    #mobile-controls { display: none !important; }
+}
+
+/* --- YENİLENMİŞ MOBİL UYUMLULUK (Tam Ekran Oyun Deneyimi) --- */
+@media screen and (max-width: 768px) {
+    .auth-layout-wrapper { flex-direction: column; align-items: center; gap: 20px; }
+    .modern-auth-card, .leaderboard-card { width: 100%; max-width: 350px; padding: 20px; box-sizing: border-box; }
+
+    #hud-container { 
+        flex-direction: row; 
+        flex-wrap: nowrap; 
+        overflow-x: auto; 
+        top: 5px; left: 5px; right: 5px; gap: 8px;
+        padding-bottom: 5px;
+    }
+    #hud-container::-webkit-scrollbar { display: none; }
+    #hud-container { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .hud-panel { 
+        flex: 0 0 auto; 
+        font-size: 11px; padding: 6px 12px; min-height: auto; 
+        white-space: nowrap; 
+        display: flex; align-items: center; gap: 5px; 
+    }
+    .hud-panel span { font-size: 13px; margin-top: 0; display: inline-block; }
+    
+    .hud-logo-panel { display: none !important; } 
+    #theme-toggle-btn { flex: 0 0 auto; height: 32px; font-size: 11px; white-space: nowrap; }
+    
+    .logout-hud-btn { position: relative; top: 0; right: 0; margin-left: 10px; display: inline-block; }
+
+    #bottom-panel { 
+        display: block; 
+        padding: 8px; bottom: 5px; left: 5px; right: 5px; gap: 0;
+    }
+    .panel-section:nth-child(2) { display: none; } 
+    .panel-section h4 { display: none; } 
+    #quest-box { padding: 6px; text-align: center; border-left: none; }
+    #quest-desc { display: none; } 
+    #quest-progress { float: none !important; font-size: 12px; display: block; width: 100%; margin: 0; color: var(--primary); } 
+
+    #mobile-controls:not(.hide) { display: flex !important; }
+
+    .truck-wrapper { transform: scale(0.70); transform-origin: bottom center; }
+
+    h1 { font-size: 24px !important; text-align: center; }
+    p { font-size: 14px !important; text-align: center; }
+    button.start-btn { padding: 12px 30px; font-size: 15px; width: 100%; }
+
+    .garage-container {
+        grid-template-columns: 1fr !important;
+        padding: 20px 15px !important;
+        gap: 20px; width: 100%; box-sizing: border-box;
+    }
+    .garage-column { gap: 12px; }
+    .color-palette { flex-wrap: wrap; justify-content: center; }
+    #preview-area { height: 120px; }
+    .garage-column h3 { font-size: 16px !important; text-align: center; }
 }

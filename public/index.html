@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sürdürülebilir Bayrampaşa: Bütünleşik Çevre Operasyonu</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css">
@@ -11,6 +11,8 @@
 
     <div id="map"></div>
     <div id="border-flash"></div>
+
+    <div id="depo-uyari">🚨 DEPO DOLU! GARAJA DÖN! 🚨</div>
 
     <div id="hud-container" class="hide">
         <div class="hud-logo-panel">
@@ -25,21 +27,13 @@
         </div>
         <button id="theme-toggle-btn" onclick="toggleOyunTemasi()">☀️ Açık Tema</button>
     </div>
-<!-- MOBİL JOYSTICK (Sadece oyun başladığında ve mobilde görünür) -->
-    <div id="mobile-controls">
-        <button id="btn-up" class="dpad-btn">⬆️</button>
-        <div class="dpad-row">
-            <button id="btn-left" class="dpad-btn">⬅️</button>
-            <button id="btn-down" class="dpad-btn">⬇️</button>
-            <button id="btn-right" class="dpad-btn">➡️</button>
-        </div>
-    </div>
+
     <div id="bottom-panel" class="hide">
         <div class="panel-section">
             <h4>📋 Aktif Mahalle Görevi</h4>
             <div id="quest-box">
                 <span id="quest-desc">🚨 Atıkları toplayın ve Geri Dönüşüm Merkezine (♻️) ulaştırın!</span> 
-                <span id="quest-progress" style="float: right; font-weight: bold;">Kasadaki: 0/10 | Teslim Edilen: 0/10</span>
+                <span id="quest-progress" style="float: right; font-weight: bold;">Kasadaki: 0/15 | Teslim Edilen: 0/15</span>
             </div>
         </div>
         <div class="panel-section" style="border-left: 1px solid var(--border-color); padding-left: 25px;">
@@ -48,6 +42,15 @@
                 Sürücü: <span id="hud-truck-name" style="color:var(--secondary);">Yükleniyor...</span>
             </div>
             <div id="level-status" style="font-size:10px; color:var(--accent); margin-top:5px; font-weight:700;">💨Egzoz:10 | 🛢️Varil:20 | 🏭Fabrika:30 Puan | Atıkları Depoya Teslim Et!</div>
+        </div>
+    </div>
+
+    <div id="mobile-controls" class="hide">
+        <button id="btn-up" class="dpad-btn">⬆️</button>
+        <div class="dpad-row">
+            <button id="btn-left" class="dpad-btn">⬅️</button>
+            <button id="btn-down" class="dpad-btn">⬇️</button>
+            <button id="btn-right" class="dpad-btn">➡️</button>
         </div>
     </div>
 
@@ -128,14 +131,14 @@
                 <span class="welcome-icon">🍾</span>
                 <div>
                     <h4>Atıkları Topla</h4>
-                    <p>Sokaklara saçılmış Cam, Pet, Kağıt ve Kartonların üzerinde <b>kısa bir süre durarak</b> onları toplayın. Maksimum kasa kapasitesi <b>10 adettir</b>!</p>
+                    <p>Sokaklara saçılmış Cam, Pet, Kağıt ve Kartonların üzerinde <b>kısa bir süre durarak</b> onları toplayın. Maksimum kasa kapasitesi <b>15 adettir</b>!</p>
                 </div>
             </div>
             <div class="rule-welcome-item">
                 <span class="welcome-icon">♻️</span>
                 <div>
                     <h4>İstasyona Teslim Et</h4>
-                    <p>Kasadaki atıkları boşaltmak için yeşil <b>Geri Dönüşüm Merkezine (♻️)</b> yanaşın. Toplamda 10 adet teslim ettiğinizde mahalle kirlilikten kurtulur!</p>
+                    <p>Kasadaki atıkları boşaltmak için yeşil <b>Geri Dönüşüm Merkezine (♻️)</b> yanaşın. Toplamda 15 adet teslim ettiğinizde mahalle kirlilikten kurtulur!</p>
                 </div>
             </div>
             <div class="rule-welcome-item">
@@ -252,17 +255,5 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="game.js"></script>
-    <!-- DEPO DOLU UYARISI -->
-    <div id="depo-uyari">🚨 DEPO DOLU! GARAJA DÖN! 🚨</div>
-
-    <!-- MOBİL JOYSTICK KONTROLLERİ -->
-    <div id="mobile-controls">
-        <button id="btn-up" class="dpad-btn">⬆️</button>
-        <div class="dpad-row">
-            <button id="btn-left" class="dpad-btn">⬅️</button>
-            <button id="btn-down" class="dpad-btn">⬇️</button>
-            <button id="btn-right" class="dpad-btn">➡️</button>
-        </div>
-    </div>
 </body>
 </html>

@@ -42,8 +42,10 @@ let score = 0;
 let generalScore = 0;
 let collectedBoxesCount = 0;
 let totalDeliveredBoxes = 0;
-const maxBoxCapacity = 10;
-const targetDeliveryGoal = 10;
+
+// YENİ KAPASİTE VE HEDEF 15 OLDU
+const maxBoxCapacity = 15;
+const targetDeliveryGoal = 15;
 
 let lives = 3;
 let clearedMahalles = [];
@@ -156,7 +158,6 @@ function loadGlobalLeaderboard() {
         .catch(err => console.log("Skor tablosu çekilemedi."));
 }
 
-/* YENİ EKRAN GEÇİŞ FONKSİYONLARI */
 function showChoiceStep() {
     document.getElementById('auth-choice-step').classList.remove('hide');
     document.getElementById('login-step').classList.add('hide');
@@ -193,8 +194,6 @@ async function handleGiris() {
         if (data.success) {
             currentKullaniciAdi = data.kullanici_adi;
             currentAdSoyad = `${data.ad} ${data.soyad}`;
-            
-            // Araç adını, giriş yapılan kullanıcı adına sabitledik
             truckName = currentKullaniciAdi;
 
             document.getElementById('auth-container').style.display = 'none';
@@ -259,7 +258,6 @@ function selectLaserColor(element) {
 }
 
 function updateGaragePreview() {
-    // Araç adı artık truckName değişkeninden alınıyor
     const name = truckName || "...";
     const size = document.getElementById('select-truck-size').value;
     const label = document.getElementById('preview-label');
@@ -365,13 +363,14 @@ function startGameMode() {
 
     document.getElementById('hud-container').classList.remove('hide');
     document.getElementById('bottom-panel').classList.remove('hide');
+    document.getElementById('mobile-controls').classList.remove('hide');
 
     hudTruckName.innerText = `${currentAdSoyad} [${truckName}]`;
     hudBoundary.innerText = selectedMahalle + " Mh.";
     hudClearedCount.innerText = clearedMahalles.length + " / 11";
     hudScore.innerText = score;
 
-    questDesc.innerText = `📦 Hedef: Geri Dönüşüm Evine toplam 10 atık ulaştır!`;
+    questDesc.innerText = `📦 Hedef: Geri Dönüşüm Evine toplam 15 atık ulaştır!`;
     questProgress.innerText = `Kasadaki: ${collectedBoxesCount}/${maxBoxCapacity} | Teslim Edilen: ${totalDeliveredBoxes}/${targetDeliveryGoal}`;
 
     playerCoords = [...bayrampasaMahalleSinirlari[selectedMahalle].center];
@@ -583,6 +582,9 @@ function gameLoop() {
         generalScore += collectedBoxesCount * 120;
         hudScore.innerText = score;
         collectedBoxesCount = 0;
+        
+        // Depo boşaldı, uyarıyı kapat
+        document.getElementById('depo-uyari').style.display = 'none';
 
         if (totalDeliveredBoxes >= targetDeliveryGoal) {
             triggerMahalleWin();
@@ -608,6 +610,11 @@ function gameLoop() {
                         if (gameActive && collectedBoxesCount < maxBoxCapacity) {
                             collectedBoxesCount++;
                             questProgress.innerText = `Kasadaki: ${collectedBoxesCount}/${maxBoxCapacity} | Teslim Edilen: ${totalDeliveredBoxes}/${targetDeliveryGoal}`;
+
+                            // DEPO DOLDUYSA UYARIYI AÇ
+                            if (collectedBoxesCount >= maxBoxCapacity) {
+                                document.getElementById('depo-uyari').style.display = 'block';
+                            }
 
                             if (currentMode === "online" && socket) {
                                 socket.emit('kutuyu-yedim', { odaId: aktifOdaId, id: box.id });
@@ -856,7 +863,6 @@ function guvenliCikis() {
     if (map) { map.remove(); map = null; }
     if (socket) { socket.disconnect(); socket = null; }
 
-    // Çıkış yaparken input formlarını temizleyelim ve seçeneği ilk hale getirelim
     document.getElementById('login-user').value = '';
     document.getElementById('login-pass').value = '';
     document.getElementById('auth-ad').value = '';
@@ -873,12 +879,14 @@ function guvenliCikis() {
 
     document.getElementById('hud-container').classList.add('hide');
     document.getElementById('bottom-panel').classList.add('hide');
+    document.getElementById('mobile-controls').classList.add('hide');
+    document.getElementById('depo-uyari').style.display = 'none';
     winScreen.classList.add('hide');
     gameOverScreen.classList.add('hide');
     startScreen.classList.add('hide');
     document.getElementById('rules-screen').classList.add('hide');
 
-    showChoiceStep(); // Auth ekranını ana menüye dönder
+    showChoiceStep(); 
     document.getElementById('auth-container').style.display = 'flex';
     loadGlobalLeaderboard();
 }
@@ -915,13 +923,14 @@ function isPointInPolygon(point, vs) {
     }
     return inside;
 }
+
 /* --- KUSURSUZ MOBİL JOYSTICK KONTROLLERİ --- */
 function setupMobileControls() {
     const bindTouch = (id, keyProp) => {
         const btn = document.getElementById(id);
         if (!btn) return;
 
-        btn.style.touchAction = 'none';
+        btn.style.touchAction = 'none'; 
 
         const startMove = (e) => { 
             e.preventDefault(); 
@@ -947,13 +956,3 @@ function setupMobileControls() {
 }
 
 setupMobileControls();
-
-/* --- DEPO KONTROL SİSTEMİ --- */
-// Not: Çöp toplama fonksiyonunun içine sadece şu iki satırı eklemen yeterli:
-function depoKontrol(mevcutCop) {
-    if (mevcutCop >= 15) {
-        document.getElementById('depo-uyari').style.display = 'block';
-    } else {
-        document.getElementById('depo-uyari').style.display = 'none';
-    }
-}
