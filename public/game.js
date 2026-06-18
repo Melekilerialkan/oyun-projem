@@ -915,13 +915,12 @@ function isPointInPolygon(point, vs) {
     }
     return inside;
 }
-/* --- KUSURSUZ MOBİL JOYSTICK KONTROLLERİ (POINTER EVENTS) --- */
+/* --- KUSURSUZ MOBİL JOYSTICK KONTROLLERİ --- */
 function setupMobileControls() {
     const bindTouch = (id, keyProp) => {
         const btn = document.getElementById(id);
         if (!btn) return;
 
-        // Tarayıcının varsayılan dokunmatik huylarını (zoom, kaydırma vb.) tamamen kapat
         btn.style.touchAction = 'none';
 
         const startMove = (e) => { 
@@ -934,12 +933,11 @@ function setupMobileControls() {
             keys[keyProp] = false; 
         };
 
-        // Pointer Events: Parmak, fare veya kalem... Hepsini en iyi algılayan sistem!
-        btn.addEventListener('pointerdown', startMove); // Basıldığında
-        btn.addEventListener('pointerup', stopMove);    // Bırakıldığında
-        btn.addEventListener('pointercancel', stopMove); // Sistem kesintiye uğrarsa
-        btn.addEventListener('pointerout', stopMove);   // PARMAK TUŞTAN DIŞARI KAYARSA (İşte takılmayı çözen bu!)
-        btn.addEventListener('pointerleave', stopMove); // Parmak tuşu terk ederse
+        btn.addEventListener('pointerdown', startMove);
+        btn.addEventListener('pointerup', stopMove);    
+        btn.addEventListener('pointercancel', stopMove); 
+        btn.addEventListener('pointerout', stopMove);   
+        btn.addEventListener('pointerleave', stopMove); 
     };
 
     bindTouch('btn-up', 'w');
@@ -948,5 +946,14 @@ function setupMobileControls() {
     bindTouch('btn-right', 'd');
 }
 
-// Oyuna hazırlık aşamasında joystick'i aktifleştir
 setupMobileControls();
+
+/* --- DEPO KONTROL SİSTEMİ --- */
+// Not: Çöp toplama fonksiyonunun içine sadece şu iki satırı eklemen yeterli:
+function depoKontrol(mevcutCop) {
+    if (mevcutCop >= 15) {
+        document.getElementById('depo-uyari').style.display = 'block';
+    } else {
+        document.getElementById('depo-uyari').style.display = 'none';
+    }
+}
